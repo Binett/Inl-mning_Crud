@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Inlämning_Crud
+﻿namespace Inlämning_Crud
 {
     class Program
     {

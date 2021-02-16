@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Inlämning_Crud
+﻿namespace Inlämning_Crud
 {
     class Person
     {
@@ -10,8 +6,8 @@ namespace Inlämning_Crud
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int Born { get; set; } = default;
-        public int? Died { get; set; } = default;
-        public int? Mother { get; set; } = default;
-        public int? Father { get; set; } = default;
+        public int Died { get; set; } = default;
+        public int Mother { get; set; } = default;
+        public int Father { get; set; } = default;
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Text;
 
 namespace Inlämning_Crud
 {
@@ -54,7 +53,7 @@ namespace Inlämning_Crud
                         command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
                     }
                     command.ExecuteNonQuery();
-                    
+
                 }
             }
         }
@@ -79,13 +78,23 @@ namespace Inlämning_Crud
         }
         internal Person CreatePerson()
         {
+
             var person = new Person();
-            Console.Write("Enter first name: ");
-            person.FirstName = Console.ReadLine();
-            Console.Write("Enter last name: ");
-            person.LastName = Console.ReadLine();
-            Console.Write("Enter year of birth: ");
-            person.Born = int.Parse(Console.ReadLine());
+            try
+            {
+                Console.Write("Enter first name: ");
+                person.FirstName = Console.ReadLine();
+                Console.Write("Enter last name: ");
+                person.LastName = Console.ReadLine();
+                Console.Write("Enter year of birth: ");
+                person.Born = int.Parse(Console.ReadLine());
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Gör om, gör rätt PAPPSKALLE");
+            }
+
 
             var sql = @"INSERT INTO Family (firstName, lastName, born, died, motherId,fatherId) 
                        VALUES (@fName, @lName, @born, @died, @mId, @fId)";
@@ -101,12 +110,12 @@ namespace Inlämning_Crud
             ExecuteSQL(sql, parameter);
             return person;
         }
-        public Person Read(string name)
+        internal Person GetPersons(int id)
         {
-            string sql = "SELECT TOP 1 * from Persons Where firstName LIKE @name OR lastName LIKE @name";
+            string sql = "SELECT TOP 1 * from Family Where id = @id";
             var parameter = new (string, string)[]
             {
-                ("name",name),
+                ("@id",id.ToString()),
             };
 
             var dt = GetDataTable(sql, parameter);
@@ -123,13 +132,47 @@ namespace Inlämning_Crud
                 Id = (int)row["Id"],
                 FirstName = row["firstName"].ToString(),
                 LastName = row["lastName"].ToString(),
-                Born = (int)row["birthDate"],
-                Died = (int)row["deathDate"],
-                Mother = (int)row["mother"],
-                Father = (int)row["father"]
+                Born = (int)row["born"],
+                Died = (int)row["died"],
+                Mother = (int)row["motherId"],
+                Father = (int)row["fatherId"]
             };
-        }        
-        public DataTable ShowAllFrom(string filter = null, params(string,string)[] parameters)
+        }
+        internal List<Person> GetPersons(string name)
+        {
+            var list = new List<Person>();
+            string sql = "SELECT * from Family Where firstName = @firstName OR lastName =@lastName";
+            var parameter = new (string, string)[]
+            {
+                ("@firstName", name),
+                ("@lastName",name)
+            };
+
+            var dt = GetDataTable(sql, parameter);
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow item in dt.Rows)
+                {
+                    list.Add(GetPerson(item));
+                }
+            }
+            return list;
+        }
+        private Person GetPerson(DataRow row)
+        {
+            var person = new Person()
+            {
+                Id = (int)row["id"],
+                FirstName = row["firstName"].ToString(),
+                LastName = row["lastName"].ToString(),
+                Born = (int)row["born"],
+                Died = (int)row["died"],
+                Mother = (int)row["motherId"],
+                Father = (int)row["fatherId"]
+            };
+            return person;
+        }
+        internal DataTable ShowAllFrom(string filter = null, params (string, string)[] parameters)
         {
             var sql = "SELECT * FROM Family ";
             DataTable dt;
@@ -145,6 +188,36 @@ namespace Inlämning_Crud
             if (dt.Rows.Count == 0)
                 Console.WriteLine("No match! ");
             return dt;
+        }
+        internal void Update(Person person)
+        {
+            string sql = @"Update Family SET firstName = @firstName, lastName = @lastName, 
+                         born= @born, died = @died, motherId= @motherId, fatherId = @fatherId
+                         WHERE id = @id";
+            var parameter = new (string, string)[]
+            {
+                ("@id",person.Id.ToString()),
+                ("@firstName",person.FirstName),
+                ("@lastName",person.LastName),
+                ("@born",person.Born.ToString()),
+                ("@died",person.Died.ToString()),
+                ("@motherId",person.Mother.ToString()),
+                ("@fatherId",person.Father.ToString())
+            };
+            ExecuteSQL(sql, parameter);
+        }
+        public DataRow Read(int id)
+        {
+
+            var dt = GetDataTable($"SELECT TOP 1 * FROM Family WHERE Id={id};");
+
+            if (dt.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            return dt.Rows[0];
+            
         }
     }
 }
