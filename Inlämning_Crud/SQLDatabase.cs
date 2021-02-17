@@ -213,8 +213,7 @@ namespace Inlämning_Crud
             {
                 return null;
             }
-            return dt.Rows[0];
-            
+            return dt.Rows[0];            
         }
     }
 }
