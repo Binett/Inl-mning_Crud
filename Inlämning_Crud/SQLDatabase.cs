@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Inlämning_Crud
 {
@@ -23,6 +24,7 @@ namespace Inlämning_Crud
                 ExecuteSQL("CREATE DATABASE Binett");
                 DatabaseName = "Binett";
                 CreateTable("Family");
+                MockData.FillDataTable();
                 return true;
             }
             catch
@@ -47,9 +49,9 @@ namespace Inlämning_Crud
                     died int NULL,
                     motherId int NULL,
                     fatherId int NULL)";
-            ExecuteSQL(sql);
-        }
-
+            ExecuteSQL(sql);        
+        } 
+        
         internal void ExecuteSQL(string sql, params (string, string)[] parameters)
         {
             var connectionString = string.Format(ConnectionString, DatabaseName);
@@ -272,6 +274,34 @@ namespace Inlämning_Crud
         internal void Delete(int id)
         {
             ExecuteSQL("DELETE FROM Family Where id = @id", ("@id", id.ToString()));
+        }
+
+        public List<Person> GetSiblings(Person person)
+        {           
+            var siblings = new List<Person>();
+            var dt = new DataTable();
+            if(person.Mother > 0 && person.Father > 0)
+            {
+                var sql = "SELECT * FROM Family WHERE motherId = @mId OR fatherId = @fId ";
+                dt = GetDataTable(sql, ("@mId", person.Mother.ToString()),
+                    ("@fId", person.Father.ToString()));
+                foreach (DataRow row in dt.Rows)
+                {
+                    siblings.Add(GetPerson(row));
+                }
+            }
+            else
+            {
+                Console.WriteLine("No siblings found! ");
+            }
+            if (dt.Rows.Count == 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    siblings.Add(GetPerson(row));
+                }
+            }
+            return siblings.Where(s => s.Id != person.Id).ToList();
         }
     }
 }

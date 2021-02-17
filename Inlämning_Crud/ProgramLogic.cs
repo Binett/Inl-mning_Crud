@@ -43,6 +43,7 @@ namespace Inlämning_Crud
                     case "4":
                         DeletePerson();
                         break;
+
                     case "5":
                         Environment.Exit(0);
                         break;
@@ -64,7 +65,7 @@ namespace Inlämning_Crud
             {
                 Console.WriteLine("Choose an id of an person you would like to delete!");
                 var userId = Convert.ToInt32(Console.ReadLine());
-                db.Delete(userId);                
+                db.Delete(userId);
             }
             else
             {
@@ -182,7 +183,7 @@ namespace Inlämning_Crud
                 Console.WriteLine($"{name} doesn't seem to exist in the database!");
                 Console.Write($"Do you want to create {name}(y/n)? ");
                 var choice = Console.ReadLine();
-                if (choice.ToLower() == "y")
+                if (string.Equals(choice, "y", StringComparison.OrdinalIgnoreCase))
                 {
                     AddPerson();
                 }
@@ -222,7 +223,7 @@ namespace Inlämning_Crud
                         break;
 
                     case "4":
-                        ShowParents();
+                        Parents();
                         break;
 
                     case "5":
@@ -237,16 +238,41 @@ namespace Inlämning_Crud
         }
 
         /// <summary>
-        /// Visar syskom
+        /// Visar syskon
         /// </summary>
         private void ShowSiblings()
         {
+            var db = new SQLDatabase();
+            Console.Write("Enter name: ");
+            var name = Console.ReadLine();
+            var persons = db.GetPersons(name);
+            if (persons.Count > 0)
+            {
+                PrintList(persons);
+                Console.Write("Enter person: ");
+                var userId = Convert.ToInt32(Console.ReadLine());
+                var person = db.GetPersons(userId);
+                var siblings = db.GetSiblings(person);
+                PrintList(siblings);
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("No match, do you wanna add person(y/n)");
+                var choice = Console.ReadLine();
+                if (string.Equals(choice, "y", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
+            }
+           
         }
 
+        //TODO: Ändra
         /// <summary>
         /// Visar föräldrar
-        /// </summary>
-        private void ShowParents()
+        /// </summary>        
+        private void Parents()
         {
             var db = new SQLDatabase();
             Console.Write("Enter name: ");
@@ -452,7 +478,6 @@ namespace Inlämning_Crud
                 }
             }
         }
-
-       
+        
     }
 }
