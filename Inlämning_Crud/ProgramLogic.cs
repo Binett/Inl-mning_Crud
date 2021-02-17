@@ -13,6 +13,9 @@ namespace Inlämning_Crud
             Menu();
         }
 
+        /// <summary>
+        /// StartMeny
+        /// </summary>
         private void Menu()
         {
             while (true)
@@ -30,7 +33,7 @@ namespace Inlämning_Crud
                         break;
 
                     case "2":
-                        Read();
+                        ListPeople();
                         break;
 
                     case "3":
@@ -38,12 +41,41 @@ namespace Inlämning_Crud
                         break;
 
                     case "4":
-                        
+                        DeletePerson();
+                        break;
+                    case "5":
+                        Environment.Exit(0);
                         break;
                 }
             }
         }
 
+        /// <summary>
+        /// Raderar person
+        /// </summary>
+        private void DeletePerson()
+        {
+            var db = new SQLDatabase();
+            Console.WriteLine("Enter name of the person you wanna update");
+            var name = Console.ReadLine();
+            var people = db.GetPersons(name);
+            PrintList(people);
+            if (people.Count > 0)
+            {
+                Console.WriteLine("Choose an id of an person you would like to delete!");
+                var userId = Convert.ToInt32(Console.ReadLine());
+                db.Delete(userId);                
+            }
+            else
+            {
+                Console.WriteLine("No match!");
+                Console.ReadKey();
+            }
+        }
+
+        /// <summary>
+        /// Hämtar personer och uppdaterar dess data
+        /// </summary>
         private void UpdatePerson()
         {
             var db = new SQLDatabase();
@@ -121,6 +153,11 @@ namespace Inlämning_Crud
             }
         }
 
+        /// <summary>
+        /// Hämtar föräldrar
+        /// </summary>
+        /// <param name="type">om det är mor eller far</param>
+        /// <returns>Förhoppningsvis en person annars kommer alternativet att skapa upp dem</returns>
         private Person GetParent(string type)
         {
             var db = new SQLDatabase();
@@ -154,7 +191,10 @@ namespace Inlämning_Crud
             return null;
         }
 
-        private void Read()
+        /// <summary>
+        /// Listar personer från databasen beroende på vad vi vill visa
+        /// </summary>
+        private void ListPeople()
         {
             while (true)
             {
@@ -196,10 +236,16 @@ namespace Inlämning_Crud
             }
         }
 
+        /// <summary>
+        /// Visar syskom
+        /// </summary>
         private void ShowSiblings()
         {
         }
 
+        /// <summary>
+        /// Visar föräldrar
+        /// </summary>
         private void ShowParents()
         {
             var db = new SQLDatabase();
@@ -237,6 +283,9 @@ namespace Inlämning_Crud
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Visar Personer som saknar data i databasen
+        /// </summary>
         private void ShowPeopleMissingData()
         {
             while (true)
@@ -276,6 +325,9 @@ namespace Inlämning_Crud
             }
         }
 
+        /// <summary>
+        /// Listar personer efter år
+        /// </summary>
         private void ShowWhenPeopleBorn()
         {
             try
@@ -293,6 +345,9 @@ namespace Inlämning_Crud
             }
         }
 
+        /// <summary>
+        /// Sök Personer som börjar på ....
+        /// </summary>
         private void ShowPeopleByLetter()
         {
             try
@@ -311,6 +366,9 @@ namespace Inlämning_Crud
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Lägger till Personer till Databasen
+        /// </summary>
         private void AddPerson()
         {
             var db = new SQLDatabase();
@@ -318,6 +376,10 @@ namespace Inlämning_Crud
             Console.WriteLine($"{person.FirstName} was added");
         }
 
+        /// <summary>
+        /// Skriver ut personer från en tabell
+        /// </summary>
+        /// <param name="dt"></param>
         private static void PrintAllPerson(DataTable dt)
         {
             for (int j = 0; j < dt.Rows.Count; j++)
@@ -331,6 +393,10 @@ namespace Inlämning_Crud
             }
         }
 
+        /// <summary>
+        /// Skriver ut ett objekt
+        /// </summary>
+        /// <param name="person">skicka med ett namn</param>
         private static void PrintPerson(Person person)
         {
             Console.WriteLine($"Id: {person.Id} Name : {person.FirstName} {person.LastName} " +
@@ -339,6 +405,10 @@ namespace Inlämning_Crud
                       $"FatherId :{person.Father}");
         }
 
+        /// <summary>
+        /// Skriver ut en lista med personer
+        /// </summary>
+        /// <param name="people"></param>
         private void PrintList(List<Person> people)
         {
             foreach (var person in people)
@@ -350,6 +420,12 @@ namespace Inlämning_Crud
             }
         }
 
+        //TODO: Refakturera bort!!!
+        /// <summary>
+        /// Väljer en person
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
         private int ChoosePerson(int count)
         {
             while (true)

@@ -6,11 +6,15 @@ using System.Diagnostics;
 
 namespace Inlämning_Crud
 {
-    class SQLDatabase
+    internal class SQLDatabase
     {
         public string ConnectionString { get; set; } = @"Data Source = .\SQLExpress; Integrated Security = true; database = {0}";
         public string DatabaseName { get; set; } = "Binett";
 
+        /// <summary>
+        /// Skapar databasen om databasen inte existerar skapas tabell och lägger till mockdata
+        /// </summary>
+        /// <returns></returns>
         public bool CreateDatabase()
         {
             try
@@ -28,6 +32,11 @@ namespace Inlämning_Crud
                 return false;
             }
         }
+
+        /// <summary>
+        /// SQL query för att skapa tabellen
+        /// </summary>
+        /// <param name="name"></param>
         internal void CreateTable(string name)
         {
             string sql = @$"CREATE TABLE {name}
@@ -36,10 +45,11 @@ namespace Inlämning_Crud
                     lastName nvarchar(50) NOT NULL,
                     born int NULL,
                     died int NULL,
-                    motherId int NULL, 
+                    motherId int NULL,
                     fatherId int NULL)";
             ExecuteSQL(sql);
         }
+
         internal void ExecuteSQL(string sql, params (string, string)[] parameters)
         {
             var connectionString = string.Format(ConnectionString, DatabaseName);
@@ -53,10 +63,16 @@ namespace Inlämning_Crud
                         command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
                     }
                     command.ExecuteNonQuery();
-
                 }
             }
         }
+
+        /// <summary>
+        /// Hämtar en datatabell
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns>dataTable</returns>
         internal DataTable GetDataTable(string sql, params (string, string)[] parameters)
         {
             var dt = new DataTable();
@@ -76,9 +92,13 @@ namespace Inlämning_Crud
             }
             return dt;
         }
+
+        /// <summary>
+        /// Lägger till personer i databasen
+        /// </summary>
+        /// <returns></returns>
         internal Person CreatePerson()
         {
-
             var person = new Person();
             try
             {
@@ -88,15 +108,13 @@ namespace Inlämning_Crud
                 person.LastName = Console.ReadLine();
                 Console.Write("Enter year of birth: ");
                 person.Born = int.Parse(Console.ReadLine());
-
             }
             catch (Exception)
             {
                 Console.WriteLine("Gör om, gör rätt PAPPSKALLE");
             }
 
-
-            var sql = @"INSERT INTO Family (firstName, lastName, born, died, motherId,fatherId) 
+            var sql = @"INSERT INTO Family (firstName, lastName, born, died, motherId,fatherId)
                        VALUES (@fName, @lName, @born, @died, @mId, @fId)";
             var parameter = new (string, string)[]
             {
@@ -110,6 +128,7 @@ namespace Inlämning_Crud
             ExecuteSQL(sql, parameter);
             return person;
         }
+
         internal Person GetPersons(int id)
         {
             string sql = "SELECT TOP 1 * from Family Where id = @id";
@@ -138,6 +157,12 @@ namespace Inlämning_Crud
                 Father = (int)row["fatherId"]
             };
         }
+
+        /// <summary>
+        /// Hämtar en lista med personer
+        /// </summary>
+        /// <param name="name">input</param>
+        /// <returns>lista av namn</returns>
         internal List<Person> GetPersons(string name)
         {
             var list = new List<Person>();
@@ -158,6 +183,12 @@ namespace Inlämning_Crud
             }
             return list;
         }
+
+        /// <summary>
+        /// Tar in en rad och returnerar ett personobjekt
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns>personobjekt</returns>
         private Person GetPerson(DataRow row)
         {
             var person = new Person()
@@ -172,6 +203,13 @@ namespace Inlämning_Crud
             };
             return person;
         }
+
+        /// <summary>
+        /// Skcikar en SQL query som hämtar alla som innehåller vissa påståenden
+        /// </summary>
+        /// <param name="filter">Optional</param>
+        /// <param name="parameters"></param>
+        /// <returns>DataTable</returns>
         internal DataTable ShowAllFrom(string filter = null, params (string, string)[] parameters)
         {
             var sql = "SELECT * FROM Family ";
@@ -189,9 +227,14 @@ namespace Inlämning_Crud
                 Console.WriteLine("No match! ");
             return dt;
         }
+
+        /// <summary>
+        /// Uppdaterar person vi tar in person från UpdatePerson metdoden i ProgramLogig
+        /// </summary>
+        /// <param name="person"></param>
         internal void Update(Person person)
         {
-            string sql = @"Update Family SET firstName = @firstName, lastName = @lastName, 
+            string sql = @"Update Family SET firstName = @firstName, lastName = @lastName,
                          born= @born, died = @died, motherId= @motherId, fatherId = @fatherId
                          WHERE id = @id";
             var parameter = new (string, string)[]
@@ -206,14 +249,29 @@ namespace Inlämning_Crud
             };
             ExecuteSQL(sql, parameter);
         }
-        public DataRow Read(int id)
+
+        /// <summary>
+        /// Hämtar person
+        /// </summary>
+        /// <param name="id">person id</param>
+        /// <returns>En datarad baseras på id:t vi skickar in</returns>
+        internal DataRow Read(int id)
         {
             var dt = GetDataTable($"SELECT TOP 1 * FROM Family WHERE Id={id};");
             if (dt.Rows.Count == 0)
             {
                 return null;
             }
-            return dt.Rows[0];            
+            return dt.Rows[0];
+        }
+
+        /// <summary>
+        /// Danger Raderar person baserat på vilket id vi skickar in
+        /// </summary>
+        /// <param name="id"></param>
+        internal void Delete(int id)
+        {
+            ExecuteSQL("DELETE FROM Family Where id = @id", ("@id", id.ToString()));
         }
     }
 }
