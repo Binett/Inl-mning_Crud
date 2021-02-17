@@ -262,12 +262,15 @@ namespace Inlämning_Crud
                 var choice = Console.ReadLine();
                 if (string.Equals(choice, "y", StringComparison.OrdinalIgnoreCase))
                 {
-
+                    AddPerson();
+                }
+                else
+                {
+                    Console.WriteLine("Please come again! ");
                 }
             }
            
         }
-
         //TODO: Ändra
         /// <summary>
         /// Visar föräldrar
