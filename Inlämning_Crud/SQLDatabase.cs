@@ -208,14 +208,11 @@ namespace Inlämning_Crud
         }
         public DataRow Read(int id)
         {
-
             var dt = GetDataTable($"SELECT TOP 1 * FROM Family WHERE Id={id};");
-
             if (dt.Rows.Count == 0)
             {
                 return null;
             }
-
             return dt.Rows[0];
             
         }

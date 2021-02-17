@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Inlämning_Crud
 {
-    class ProgramLogic
+    internal class ProgramLogic
     {
         internal void Run()
         {
@@ -12,6 +12,7 @@ namespace Inlämning_Crud
             db.CreateDatabase();
             Menu();
         }
+
         private void Menu()
         {
             while (true)
@@ -27,18 +28,22 @@ namespace Inlämning_Crud
                     case "1":
                         AddPerson();
                         break;
+
                     case "2":
                         Read();
                         break;
+
                     case "3":
                         UpdatePerson();
                         break;
+
                     case "4":
-                        
+
                         break;
                 }
             }
         }
+
         private void UpdatePerson()
         {
             var db = new SQLDatabase();
@@ -105,6 +110,7 @@ namespace Inlämning_Crud
                                     person.Father = father.Id;
                                 }
                                 break;
+
                             case 7:
                                 isRunning = false;
                                 break;
@@ -113,8 +119,8 @@ namespace Inlämning_Crud
                     }
                 }
             }
-
         }
+
         private Person GetParent(string type)
         {
             var db = new SQLDatabase();
@@ -130,7 +136,7 @@ namespace Inlämning_Crud
             Console.WriteLine("0. None of the above");
 
             var option = ChoosePerson(persons.Count);
-            if(option>0)
+            if (option > 0)
             {
                 return persons[option - 1];
             }
@@ -144,9 +150,10 @@ namespace Inlämning_Crud
                     AddPerson();
                 }
             }
-            
+
             return null;
         }
+
         private void Read()
         {
             while (true)
@@ -165,69 +172,71 @@ namespace Inlämning_Crud
                     case "1":
                         ShowPeopleByLetter();
                         break;
+
                     case "2":
                         ShowWhenPeopleBorn();
                         break;
+
                     case "3":
                         ShowPeopleMissingData();
                         break;
+
                     case "4":
                         ShowParents();
                         break;
+
                     case "5":
                         ShowSiblings();
                         break;
+
                     case "6":
                         Menu();
                         break;
                 }
             }
-
         }
+
         private void ShowSiblings()
         {
-
         }
+
         private void ShowParents()
         {
-            while (true)
-            {
-                //var db = new SQLDatabase();
-                //Console.Write("Enter name: ");
-                //var name = Console.ReadLine();
-                //var persons = db.GetPersons(name);
-                //PrintList(persons);
-                //Console.Write("Enter person: ");
-                //var userId = Convert.ToInt32(Console.ReadLine());
-                //var person = db.GetPersons(userId);
+            var db = new SQLDatabase();
+            Console.Write("Enter name: ");
+            var name = Console.ReadLine();
+            var persons = db.GetPersons(name);
+            PrintList(persons);
+            Console.Write("Enter person: ");
+            var userId = Convert.ToInt32(Console.ReadLine());
 
-                var databas = new SQLDatabase();
-                var dt = databas.Read(1);
-                DataRow rad = dt;
-                var fname = rad["FirstName"].ToString();
-                var lname = rad["LastName"].ToString();
-                var mother = (int)rad["motherId"];
-                var father = (int)rad["FatherId"];
-                Console.WriteLine($"{fname} {lname}");
-                if (mother > 0)
-                {
-                    dt = databas.Read(mother);
-                    rad = dt;
-                    fname = rad["FirstName"].ToString();
-                    lname = rad["LastName"].ToString();
-                    System.Console.WriteLine($"{fname} {lname}");
-                }
-                if (father > 0)
-                {
-                    dt = databas.Read(father);
-                    rad = dt;
-                    fname = rad["FirstName"].ToString();
-                    lname = rad["LastName"].ToString();
-                    System.Console.WriteLine($"{fname} {lname}");
-                }
-                Console.ReadLine();
+            var databas = new SQLDatabase();
+            var dt = databas.Read(userId);
+            DataRow rad = dt;
+            var fname = rad["FirstName"].ToString();
+            var lname = rad["LastName"].ToString();
+            var mother = (int)rad["motherId"];
+            var father = (int)rad["FatherId"];
+            Console.WriteLine($"{fname} {lname}");
+            if (mother > 0)
+            {
+                dt = databas.Read(mother);
+                rad = dt;
+                fname = rad["FirstName"].ToString();
+                lname = rad["LastName"].ToString();
+                Console.WriteLine($"Mother: {fname} {lname}");
             }
+            if (father > 0)
+            {
+                dt = databas.Read(father);
+                rad = dt;
+                fname = rad["FirstName"].ToString();
+                lname = rad["LastName"].ToString();
+                System.Console.WriteLine($"Father: {fname} {lname}");
+            }
+            Console.ReadLine();
         }
+
         private void ShowPeopleMissingData()
         {
             while (true)
@@ -246,15 +255,19 @@ namespace Inlämning_Crud
                     case "1":
                         sql = "Where born=0";
                         break;
+
                     case "2":
                         sql = "Where died=0";
                         break;
+
                     case "3":
                         sql = "Where motherId=0";
                         break;
+
                     case "4":
                         sql = "Where fatherId=0";
                         break;
+
                     case "5":
                         Menu();
                         break;
@@ -262,32 +275,50 @@ namespace Inlämning_Crud
                 PrintAllPerson(db.ShowAllFrom(sql));
             }
         }
+
         private void ShowWhenPeopleBorn()
         {
-            var db = new SQLDatabase();
-            Console.Write("Enter year: ");
-            var year = Convert.ToInt32(Console.ReadLine());
-            var sql = "Where born = @born";
+            try
+            {
+                var db = new SQLDatabase();
+                Console.Write("Enter year: ");
+                var year = Convert.ToInt32(Console.ReadLine());
+                var sql = "Where born = @born";
 
-            PrintAllPerson(db.ShowAllFrom(sql, ("@born", $"{year}")));
+                PrintAllPerson(db.ShowAllFrom(sql, ("@born", $"{year}")));
+            }
+            catch
+            {
+                Console.WriteLine("Invalid Input, try again! ");
+            }
         }
+
         private void ShowPeopleByLetter()
         {
-            var db = new SQLDatabase();
-            Console.Write("Enter a letter: ");
-            var letter = Console.ReadLine();
-            var sql = "Where firstName LIKE '%'+ @letter +'%'";
-            PrintAllPerson(db.ShowAllFrom(sql, ("@letter", letter)));
+            try
+            {
+                var db = new SQLDatabase();
+                Console.Write("Enter a letter: ");
+                var letter = Console.ReadLine();
+                var sql = "Where firstName LIKE @letter +'%'";
+                PrintAllPerson(db.ShowAllFrom(sql, ("@letter", letter)));
+            }
+            catch
+            {
+                Console.WriteLine("Invalid input, try again");
+            }
 
             Console.ReadLine();
         }
+
         private void AddPerson()
         {
             var db = new SQLDatabase();
             var person = db.CreatePerson();
             Console.WriteLine($"{person.FirstName} was added");
         }
-        public static void PrintAllPerson(DataTable dt)
+
+        private static void PrintAllPerson(DataTable dt)
         {
             for (int j = 0; j < dt.Rows.Count; j++)
             {
@@ -299,14 +330,16 @@ namespace Inlämning_Crud
                 Console.WriteLine();
             }
         }
-        public static void PrintPerson(Person person)
+
+        private static void PrintPerson(Person person)
         {
             Console.WriteLine($"Id: {person.Id} Name : {person.FirstName} {person.LastName} " +
                       $"Born: {person.Born}  Died: {person.Died}  " +
                       $"MotherId: {person.Mother}" +
                       $"FatherId :{person.Father}");
         }
-        public void PrintList(List<Person>people)
+
+        private void PrintList(List<Person> people)
         {
             foreach (var person in people)
             {
@@ -316,6 +349,7 @@ namespace Inlämning_Crud
                     $"FatherId :{person.Father}");
             }
         }
+
         private int ChoosePerson(int count)
         {
             while (true)
@@ -342,34 +376,5 @@ namespace Inlämning_Crud
                 }
             }
         }
-        //public void PrintPerson(int id)
-        //{
-        //    if (id < 1) return; // Om inget ID finns, avsluta
-        //    var databas = new SQLDatabase();
-        //    var dt = databas.GetPersons(id);
-        //    DataRow rad = dt.Rows[0];
-        //    var fname = rad["FirstName"].ToString();
-        //    var lname = rad["LastName"].ToString();
-        //    var mother = (int)rad["Mother"];
-        //    var father = (int)rad["Father"];
-        //    System.Console.WriteLine($"{fname} {lname}");
-        //    if (mother > 0)
-        //    {
-        //        dt = databas.GetPersons(mother);
-        //        DataRow rad = dt.Rows[0];
-        //        fname = rad["FirstName"].ToString();
-        //        lname = rad["LastName"].ToString();
-        //        System.Console.WriteLine($"{fname} {lname}");
-        //    }
-        //    if (father > 0)
-        //    {
-        //        dt = databas.Read(Father);
-        //        DataRow rad = dt.Rows[0];
-        //        fname = rad["FirstName"].ToString();
-        //        lname = rad["LastName"].ToString();
-        //        System.Console.WriteLine($"{fname} {lname}");
-        //    }
-        //}
-
     }
 }

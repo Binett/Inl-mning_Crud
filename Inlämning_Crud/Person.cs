@@ -1,6 +1,6 @@
 ﻿namespace Inlämning_Crud
 {
-    class Person
+    internal class Person
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
