@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 
 namespace Inlämning_Crud
 {
@@ -60,7 +61,7 @@ namespace Inlämning_Crud
             var db = new SQLDatabase();
             Console.Write("Enter the name of the person you would like to delete: ");
             var name = Console.ReadLine();
-            var persons = db.GetPersons(name);
+            var persons = db.GetPersons(name); 
             PrintList(persons);
             if (persons.Count > 0)
             {
@@ -95,6 +96,7 @@ namespace Inlämning_Crud
             {
                 Console.WriteLine($"{name} was not found in the DB! ");
             }
+
         }
 
         /// <summary>
@@ -108,6 +110,7 @@ namespace Inlämning_Crud
             var people = db.GetPersons(name);
             if (people.Count > 0)
             {
+
                 PrintList(people);
                 Console.WriteLine("Choose an id of an person you would like to update!");
                 var userId = Convert.ToInt32(Console.ReadLine());
@@ -199,7 +202,14 @@ namespace Inlämning_Crud
             var option = ChoosePerson(persons.Count);
             if (option > 0)
             {
-                return persons[option - 1];
+                try
+                {
+                    return persons[option - 1];
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
             else
             {
@@ -269,30 +279,23 @@ namespace Inlämning_Crud
             Console.Write("Enter name: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
+            PrintList(persons);
             if (persons.Count > 0)
             {
-                PrintList(persons);
                 Console.Write("Enter person: ");
                 var userId = Convert.ToInt32(Console.ReadLine());
                 var person = db.GetPersons(userId);
                 var siblings = db.GetSiblings(person);
-                PrintList(siblings);
-                Console.ReadLine();
-            }
-            else
-            {
-                Console.WriteLine("No match, do you wanna add person(y/n)");
-                var choice = Console.ReadLine();
-                if (string.Equals(choice, "y", StringComparison.OrdinalIgnoreCase))
+                if (siblings.Count > 0)
                 {
-                    AddPerson();
+                    PrintList(siblings);
                 }
                 else
                 {
-                    Console.WriteLine("Please come again! ");
+                    Console.WriteLine("No Siblings found");
                 }
+                Console.ReadLine();
             }
-
         }
 
         /// <summary>
@@ -429,16 +432,16 @@ namespace Inlämning_Crud
 
             try
             {
-                Console.Write("Enter first name: ");
+                Console.Write("[Required]\nEnter first name: ");
                 person.FirstName = Console.ReadLine();
-                Console.Write("Enter last name: ");
+                Console.Write("[Required]\nEnter last name: ");
                 person.LastName = Console.ReadLine();
-                Console.Write("Enter year of birth: ");
+                Console.Write("[Optional]\nEnter year of birth-(yyyy): ");
                 person.Born = int.Parse(Console.ReadLine());
             }
             catch
             {
-                Console.WriteLine("Invalid Input");
+                Debug.Write("Wrong input");
             }
 
             if (person.FirstName?.Length == 0 || person.LastName?.Length == 0)
@@ -455,8 +458,6 @@ namespace Inlämning_Crud
                 person = db.CreatePerson(person);
                 Console.WriteLine($"{person.FirstName} was added");
             }
-
-
         }
 
         /// <summary>
@@ -496,7 +497,7 @@ namespace Inlämning_Crud
         {
             foreach (var person in people)
             {
-                Console.WriteLine($"Id: {person.Id} Name : {person.FirstName} {person.LastName} " +
+                Console.WriteLine($"ID {person.Id} Name : {person.FirstName} {person.LastName} " +
                     $"Born: {person.Born}  Died: {person.Died}  " +
                     $"MotherId: {person.Mother}" +
                     $"FatherId :{person.Father}");
@@ -534,6 +535,5 @@ namespace Inlämning_Crud
                 }
             }
         }
-
     }
 }

@@ -64,6 +64,13 @@ namespace Inlämning_Crud
                     {
                         command.Parameters.AddWithValue(parameter.Item1, parameter.Item2);
                     }
+                    foreach (SqlParameter parameter in command.Parameters)
+                    {
+                        if (parameter.Value == null)
+                        {
+                            parameter.Value = DBNull.Value;
+                        }
+                    }
                     command.ExecuteNonQuery();
                 }
             }
@@ -128,7 +135,7 @@ namespace Inlämning_Crud
 
             if (dt.Rows.Count == 0)
             {
-                return null;
+                return default;
             }
 
             var row = dt.Rows[0];
@@ -276,10 +283,6 @@ namespace Inlämning_Crud
                     siblings.Add(GetPerson(row));
                 }
             }
-            else
-            {
-                Console.WriteLine("No siblings found! ");
-            }
             if (dt.Rows.Count == 0)
             {
                 foreach (DataRow row in dt.Rows)
@@ -289,6 +292,6 @@ namespace Inlämning_Crud
             }
             return siblings.Where(s => s.Id != person.Id)
                            .ToList();
-        }       
+        }
     }
 }
