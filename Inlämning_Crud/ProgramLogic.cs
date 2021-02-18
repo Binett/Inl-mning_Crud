@@ -61,42 +61,48 @@ namespace Inlämning_Crud
             var db = new SQLDatabase();
             Console.Write("Enter the name of the person you would like to delete: ");
             var name = Console.ReadLine();
-            var persons = db.GetPersons(name); 
+            var persons = db.GetPersons(name);
             PrintList(persons);
             if (persons.Count > 0)
             {
                 var option = ChoosePerson(persons.Count);
                 var member = db.GetPersons(option);
-                var dt = db.ShowAllFrom();
-                foreach (DataRow row in dt.Rows)
+                if (member != null)
                 {
-                    list.Add(db.GetPerson(row));
+                    var dt = db.ShowAllFrom();
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        list.Add(db.GetPerson(row));
+                    }
+                    foreach (var members in list)
+                    {
+                        if (members.Mother == member.Id)
+                        {
+                            members.Mother = 0;
+                            db.Update(members);
+                        }
+                        else if (members.Father == member.Id)
+                        {
+                            members.Father = 0;
+                            db.Update(members);
+                        }
+                        else
+                        {
+                            db.Delete(member.Id);
+                        }
+                    }
+                    Console.WriteLine($"{member.FirstName} Was succesfully deleted!");
                 }
-                foreach (var members in list)
+                else
                 {
-                    if (members.Mother == member.Id)
-                    {
-                        members.Mother = 0;
-                        db.Update(members);
-                    }
-                    else if (members.Father == member.Id)
-                    {
-                        members.Father = 0;
-                        db.Update(members);
-                    }
-                    else
-                    {
-                        db.Delete(member.Id);
-                    }
+                    Console.WriteLine("member dosent exist!");
                 }
-                Console.WriteLine($"{member.Id} Was succesfully deleted!");
                 Console.ReadLine();
             }
             else
             {
                 Console.WriteLine($"{name} was not found in the DB! ");
             }
-
         }
 
         /// <summary>
@@ -110,73 +116,77 @@ namespace Inlämning_Crud
             var people = db.GetPersons(name);
             if (people.Count > 0)
             {
-
                 PrintList(people);
                 Console.WriteLine("Choose an id of an person you would like to update!");
                 var userId = Convert.ToInt32(Console.ReadLine());
                 var person = db.GetPersons(userId);
-                bool isRunning = true;
-                while (isRunning)
+                if (person != null)
                 {
-                    Console.Clear();
-                    PrintPerson(person);
-                    Console.WriteLine("What do you wanna change?");
-                    Console.WriteLine("1. First name: ");
-                    Console.WriteLine("2. Last Name ");
-                    Console.WriteLine("3. Date of birth ");
-                    Console.WriteLine("4. Date of death ");
-                    Console.WriteLine("5. Mother");
-                    Console.WriteLine("6. Father");
-                    Console.WriteLine("7. Exit to main Menu");
 
-                    var input = Console.ReadLine();
-                    if (int.TryParse(input, out int choice))
+                    bool isRunning = true;
+                    while (isRunning)
                     {
-                        switch (choice)
+                        Console.Clear();
+                        PrintPerson(person);
+                        Console.WriteLine("What do you wanna change?");
+                        Console.WriteLine("1. First name: ");
+                        Console.WriteLine("2. Last Name ");
+                        Console.WriteLine("3. Date of birth ");
+                        Console.WriteLine("4. Date of death ");
+                        Console.WriteLine("5. Mother");
+                        Console.WriteLine("6. Father");
+                        Console.WriteLine("7. Exit to main Menu");
+
+                        var input = Console.ReadLine();
+                        if (int.TryParse(input, out int choice))
                         {
-                            case 1:
-                                Console.Write("Enter first name: ");
-                                person.FirstName = Console.ReadLine();
-                                break;
+                            switch (choice)
+                            {
+                                case 1:
+                                    Console.Write("Enter first name: ");
+                                    person.FirstName = Console.ReadLine();
+                                    break;
 
-                            case 2:
-                                Console.Write("Enter first name: ");
-                                person.LastName = Console.ReadLine();
-                                break;
+                                case 2:
+                                    Console.Write("Enter first name: ");
+                                    person.LastName = Console.ReadLine();
+                                    break;
 
-                            case 3:
-                                Console.Write("Enter Date of birth: ");
-                                person.Born = Convert.ToInt32(Console.ReadLine());
-                                break;
+                                case 3:
+                                    Console.Write("Enter Date of birth: ");
+                                    person.Born = Convert.ToInt32(Console.ReadLine());
+                                    break;
 
-                            case 4:
-                                Console.Write("Enter Date of birth: ");
-                                person.Died = Convert.ToInt32(Console.ReadLine());
-                                break;
+                                case 4:
+                                    Console.Write("Enter Date of birth: ");
+                                    person.Died = Convert.ToInt32(Console.ReadLine());
+                                    break;
 
-                            case 5:
-                                var mother = GetParent("mother");
-                                if (mother != null)
-                                {
-                                    person.Mother = mother.Id;
-                                }
-                                break;
+                                case 5:
+                                    var mother = GetParent("mother");
+                                    if (mother != null)
+                                    {
+                                        person.Mother = mother.Id;
+                                    }
+                                    break;
 
-                            case 6:
-                                var father = GetParent("father");
-                                if (father != null)
-                                {
-                                    person.Father = father.Id;
-                                }
-                                break;
+                                case 6:
+                                    var father = GetParent("father");
+                                    if (father != null)
+                                    {
+                                        person.Father = father.Id;
+                                    }
+                                    break;
 
-                            case 7:
-                                isRunning = false;
-                                break;
+                                case 7:
+                                    isRunning = false;
+                                    break;
+                            }
+                            db.Update(person);
                         }
-                        db.Update(person);
                     }
                 }
+                Console.WriteLine("Wrong input!");
             }
         }
 
@@ -276,25 +286,38 @@ namespace Inlämning_Crud
         private void ShowSiblings()
         {
             var db = new SQLDatabase();
-            Console.Write("Enter name: ");
+            Console.WriteLine("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
-            PrintList(persons);
-            if (persons.Count > 0)
+            var ctr = 1;
+            foreach (var person in persons)
             {
-                Console.Write("Enter person: ");
-                var userId = Convert.ToInt32(Console.ReadLine());
-                var person = db.GetPersons(userId);
-                var siblings = db.GetSiblings(person);
-                if (siblings.Count > 0)
+                var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
+                Console.WriteLine(info);
+            }
+            Console.WriteLine("0. None of the above");
+            var option = ChoosePerson(persons.Count);
+            if (option > 0)
+            {
+                try
                 {
-                    PrintList(siblings);
+                    var siblings = db.GetSiblings(persons[option - 1]);
+                    if (siblings.Count > 0)
+                    {
+                       
+                        Console.WriteLine("Siblings: ");
+                        PrintList(siblings);
+                    }
+                    else
+                    {
+                        Console.WriteLine("No Siblings found\n Press enter to return");
+                        Console.ReadKey();
+                    }
                 }
-                else
+                catch
                 {
-                    Console.WriteLine("No Siblings found");
+                    Console.WriteLine("Wrong input!");
                 }
-                Console.ReadLine();
             }
         }
 
@@ -470,7 +493,7 @@ namespace Inlämning_Crud
             {
                 for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    Console.Write(" " + dt.Columns[i].ColumnName + ": ");
+                    Console.Write(dt.Columns[i].ColumnName + ":  ");
                     Console.Write(dt.Rows[j].ItemArray[i]);
                 }
                 Console.WriteLine();
@@ -497,10 +520,10 @@ namespace Inlämning_Crud
         {
             foreach (var person in people)
             {
-                Console.WriteLine($"ID {person.Id} Name : {person.FirstName} {person.LastName} " +
-                    $"Born: {person.Born}  Died: {person.Died}  " +
-                    $"MotherId: {person.Mother}" +
-                    $"FatherId :{person.Father}");
+                Console.WriteLine($"Name : {person.FirstName} {person.LastName}, " +
+                    $"Born: {person.Born}, " +
+                    $"MotherId: {person.Mother}, " +
+                    $"FatherId: {person.Father} ");
             }
         }
 
