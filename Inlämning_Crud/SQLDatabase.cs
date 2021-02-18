@@ -49,9 +49,9 @@ namespace Inlämning_Crud
                     died int NULL,
                     motherId int NULL,
                     fatherId int NULL)";
-            ExecuteSQL(sql);        
-        } 
-        
+            ExecuteSQL(sql);
+        }
+
         internal void ExecuteSQL(string sql, params (string, string)[] parameters)
         {
             var connectionString = string.Format(ConnectionString, DatabaseName);
@@ -99,23 +99,8 @@ namespace Inlämning_Crud
         /// Lägger till personer i databasen
         /// </summary>
         /// <returns></returns>
-        internal Person CreatePerson()
+        internal Person CreatePerson(Person person)
         {
-            var person = new Person();
-            try
-            {
-                Console.Write("Enter first name: ");
-                person.FirstName = Console.ReadLine();
-                Console.Write("Enter last name: ");
-                person.LastName = Console.ReadLine();
-                Console.Write("Enter year of birth: ");
-                person.Born = int.Parse(Console.ReadLine());
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Gör om, gör rätt PAPPSKALLE");
-            }
-
             var sql = @"INSERT INTO Family (firstName, lastName, born, died, motherId,fatherId)
                        VALUES (@fName, @lName, @born, @died, @mId, @fId)";
             var parameter = new (string, string)[]
@@ -191,7 +176,7 @@ namespace Inlämning_Crud
         /// </summary>
         /// <param name="row"></param>
         /// <returns>personobjekt</returns>
-        private Person GetPerson(DataRow row)
+        internal Person GetPerson(DataRow row)
         {
             var person = new Person()
             {
@@ -274,13 +259,14 @@ namespace Inlämning_Crud
         internal void Delete(int id)
         {
             ExecuteSQL("DELETE FROM Family Where id = @id", ("@id", id.ToString()));
+
         }
 
         public List<Person> GetSiblings(Person person)
-        {           
+        {
             var siblings = new List<Person>();
             var dt = new DataTable();
-            if(person.Mother > 0 && person.Father > 0)
+            if (person.Mother > 0 && person.Father > 0)
             {
                 var sql = "SELECT * FROM Family WHERE motherId = @mId OR fatherId = @fId ";
                 dt = GetDataTable(sql, ("@mId", person.Mother.ToString()),
@@ -301,7 +287,8 @@ namespace Inlämning_Crud
                     siblings.Add(GetPerson(row));
                 }
             }
-            return siblings.Where(s => s.Id != person.Id).ToList();
-        }
+            return siblings.Where(s => s.Id != person.Id)
+                           .ToList();
+        }       
     }
 }

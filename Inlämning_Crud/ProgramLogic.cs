@@ -56,21 +56,44 @@ namespace Inlämning_Crud
         /// </summary>
         private void DeletePerson()
         {
+            var list = new List<Person>();
             var db = new SQLDatabase();
-            Console.WriteLine("Enter name of the person you wanna update");
+            Console.Write("Enter the name of the person you would like to delete: ");
             var name = Console.ReadLine();
-            var people = db.GetPersons(name);
-            PrintList(people);
-            if (people.Count > 0)
+            var persons = db.GetPersons(name);
+            PrintList(persons);
+            if (persons.Count > 0)
             {
-                Console.WriteLine("Choose an id of an person you would like to delete!");
-                var userId = Convert.ToInt32(Console.ReadLine());
-                db.Delete(userId);
+                var option = ChoosePerson(persons.Count);
+                var member = db.GetPersons(option);
+                var dt = db.ShowAllFrom();
+                foreach (DataRow row in dt.Rows)
+                {
+                    list.Add(db.GetPerson(row));
+                }
+                foreach (var members in list)
+                {
+                    if (members.Mother == member.Id)
+                    {
+                        members.Mother = 0;
+                        db.Update(members);
+                    }
+                    else if (members.Father == member.Id)
+                    {
+                        members.Father = 0;
+                        db.Update(members);
+                    }
+                    else
+                    {
+                        db.Delete(member.Id);
+                    }
+                }
+                Console.WriteLine($"{member.Id} Was succesfully deleted!");
+                Console.ReadLine();
             }
             else
             {
-                Console.WriteLine("No match!");
-                Console.ReadKey();
+                Console.WriteLine($"{name} was not found in the DB! ");
             }
         }
 
@@ -269,9 +292,9 @@ namespace Inlämning_Crud
                     Console.WriteLine("Please come again! ");
                 }
             }
-           
+
         }
-        //TODO: Ändra
+
         /// <summary>
         /// Visar föräldrar
         /// </summary>        
@@ -400,9 +423,40 @@ namespace Inlämning_Crud
         /// </summary>
         private void AddPerson()
         {
+            Console.Clear();
             var db = new SQLDatabase();
-            var person = db.CreatePerson();
-            Console.WriteLine($"{person.FirstName} was added");
+            var person = new Person();
+
+            try
+            {
+                Console.Write("Enter first name: ");
+                person.FirstName = Console.ReadLine();
+                Console.Write("Enter last name: ");
+                person.LastName = Console.ReadLine();
+                Console.Write("Enter year of birth: ");
+                person.Born = int.Parse(Console.ReadLine());
+            }
+            catch
+            {
+                Console.WriteLine("Invalid Input");
+            }
+
+            if (person.FirstName?.Length == 0 || person.LastName?.Length == 0)
+            {
+                Console.WriteLine("Worng input, try again? (y/n)");
+                var choice = Console.ReadLine();
+                if (string.Equals(choice, "y", StringComparison.OrdinalIgnoreCase))
+                {
+                    AddPerson();
+                }
+            }
+            else
+            {
+                person = db.CreatePerson(person);
+                Console.WriteLine($"{person.FirstName} was added");
+            }
+
+
         }
 
         /// <summary>
@@ -449,7 +503,6 @@ namespace Inlämning_Crud
             }
         }
 
-        //TODO: Refakturera bort!!!
         /// <summary>
         /// Väljer en person
         /// </summary>
@@ -481,6 +534,6 @@ namespace Inlämning_Crud
                 }
             }
         }
-        
+
     }
 }
