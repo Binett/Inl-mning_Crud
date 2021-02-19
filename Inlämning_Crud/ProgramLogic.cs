@@ -21,6 +21,7 @@ namespace Inlämning_Crud
         {
             while (true)
             {
+                Console.Clear();
                 Console.WriteLine("1. Add Person");
                 Console.WriteLine("2. Show people");
                 Console.WriteLine("3. Update person");
@@ -57,63 +58,61 @@ namespace Inlämning_Crud
         /// </summary>
         private void DeletePerson()
         {
+            Console.Clear();
             var list = new List<Person>();
             var db = new SQLDatabase();
-            Console.WriteLine("Enter name on person you wanna display: ");
+            Console.Write("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
-            var ctr = 1;
-            foreach (var person in persons)
+            if (persons.Count > 0)
             {
-                var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
-                Console.WriteLine(info);
-            }
-            Console.WriteLine("0. None of the above");
-            var option = ChoosePerson(persons.Count);
-            if (option > 0)
-            {
+                var ctr = 1;
+                foreach (var person in persons)
+                {
+                    var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
+                    Console.WriteLine(info);
+                }
+                Console.WriteLine("0. None of the above");
+                var option = ChoosePerson(persons.Count);
                 try
                 {
-                    if (option > 0)
+                    var member = (persons[option - 1]);
+                    var dt = db.ShowAllFrom();
+                    foreach (DataRow row in dt.Rows)
                     {
-                        var member = (persons[option - 1]);
-                        var dt = db.ShowAllFrom();
-                        foreach (DataRow row in dt.Rows)
-                        {
-                            list.Add(db.GetPerson(row));
-                        }
-                        foreach (var members in list)
-                        {
-                            if (members.Mother == member.Id)
-                            {
-                                members.Mother = 0;
-                                db.Update(members);
-                            }
-                            else if (members.Father == member.Id)
-                            {
-                                members.Father = 0;
-                                db.Update(members);
-                            }
-                            else
-                            {
-                                db.Delete(member.Id);
-                            }
-                        }
-                        Console.WriteLine($"{member.FirstName} Was succesfully deleted!");
-
-
+                        list.Add(db.GetPerson(row));
                     }
-                    else
+                    foreach (var members in list)
                     {
-                        Console.WriteLine("Person not found\n Press enter to return");
-                        Console.ReadKey();
+                        if (members.Mother == member.Id)
+                        {
+                            members.Mother = 0;
+                            db.Update(members);
+                        }
+                        else if (members.Father == member.Id)
+                        {
+                            members.Father = 0;
+                            db.Update(members);
+                        }
+                        else
+                        {
+                            db.Delete(member.Id);
+                        }
                     }
+                    Console.WriteLine($"{member.FirstName} Was succesfully deleted!");
+
                 }
                 catch
                 {
                     Console.WriteLine("Wrong input!");
                 }
             }
+            else
+            {
+                Console.WriteLine($"{name} was not found in the DB");
+            }
+            Console.WriteLine("[Press any key to go back]");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -121,102 +120,98 @@ namespace Inlämning_Crud
         /// </summary>
         private void UpdatePerson()
         {
+            Console.Clear();
             var db = new SQLDatabase();
-            Console.WriteLine("Enter name on person you wanna display: ");
+            Console.Write("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
-            var ctr = 1;
-            foreach (var person in persons)
+            if (persons.Count > 0)
             {
-                var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
-                Console.WriteLine(info);
-            }       
-            Console.WriteLine("0. None of the above");
-            var option = ChoosePerson(persons.Count);
-            if (option > 0)
-            {
+                var ctr = 1;
+                foreach (var person in persons)
+                {
+                    var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
+                    Console.WriteLine(info);
+                }
+                Console.WriteLine("0. None of the above");
+                var option = ChoosePerson(persons.Count);
                 try
                 {
-                    if (option > 0)
+                    var person = (persons[option - 1]);
+                    bool isRunning = true;
+                    while (isRunning)
                     {
-                        var person = (persons[option - 1]);
-                        bool isRunning = true;
-                        while (isRunning)
+                        
+                        PrintPerson(person);
+                        Console.WriteLine("What do you wanna change?");
+                        Console.WriteLine("1. First name: ");
+                        Console.WriteLine("2. Last Name ");
+                        Console.WriteLine("3. Date of birth ");
+                        Console.WriteLine("4. Date of death ");
+                        Console.WriteLine("5. Mother");
+                        Console.WriteLine("6. Father");
+                        Console.WriteLine("7. Exit to main Menu");
+
+                        var input = Console.ReadLine();
+                        if (int.TryParse(input, out int choice))
                         {
-                            Console.Clear();
-                            PrintPerson(person);
-                            Console.WriteLine("What do you wanna change?");
-                            Console.WriteLine("1. First name: ");
-                            Console.WriteLine("2. Last Name ");
-                            Console.WriteLine("3. Date of birth ");
-                            Console.WriteLine("4. Date of death ");
-                            Console.WriteLine("5. Mother");
-                            Console.WriteLine("6. Father");
-                            Console.WriteLine("7. Exit to main Menu");
-
-                            var input = Console.ReadLine();
-                            if (int.TryParse(input, out int choice))
+                            switch (choice)
                             {
-                                switch (choice)
-                                {
-                                    case 1:
-                                        Console.Write("Enter first name: ");
-                                        person.FirstName = Console.ReadLine();
-                                        break;
+                                case 1:
+                                    Console.Write("Enter first name: ");
+                                    person.FirstName = Console.ReadLine();
+                                    break;
 
-                                    case 2:
-                                        Console.Write("Enter first name: ");
-                                        person.LastName = Console.ReadLine();
-                                        break;
+                                case 2:
+                                    Console.Write("Enter first name: ");
+                                    person.LastName = Console.ReadLine();
+                                    break;
 
-                                    case 3:
-                                        Console.Write("Enter Date of birth: ");
-                                        person.Born = Convert.ToInt32(Console.ReadLine());
-                                        break;
+                                case 3:
+                                    Console.Write("Enter Date of birth: ");
+                                    person.Born = Convert.ToInt32(Console.ReadLine());
+                                    break;
 
-                                    case 4:
-                                        Console.Write("Enter Date of birth: ");
-                                        person.Died = Convert.ToInt32(Console.ReadLine());
-                                        break;
+                                case 4:
+                                    Console.Write("Enter Date of birth: ");
+                                    person.Died = Convert.ToInt32(Console.ReadLine());
+                                    break;
 
-                                    case 5:
-                                        var mother = GetParent("mother");
-                                        if (mother != null)
-                                        {
-                                            person.Mother = mother.Id;
-                                        }
-                                        break;
+                                case 5:
+                                    var mother = GetParent("mother");
+                                    if (mother != null)
+                                    {
+                                        person.Mother = mother.Id;
+                                    }
+                                    break;
 
-                                    case 6:
-                                        var father = GetParent("father");
-                                        if (father != null)
-                                        {
-                                            person.Father = father.Id;
-                                        }
-                                        break;
+                                case 6:
+                                    var father = GetParent("father");
+                                    if (father != null)
+                                    {
+                                        person.Father = father.Id;
+                                    }
+                                    break;
 
-                                    case 7:
-                                        isRunning = false;
-                                        break;
-                                }
-                                db.Update(person);
+                                case 7:
+                                    isRunning = false;
+                                    break;
                             }
+                            db.Update(person);
                         }
-                        Console.WriteLine("Wrong input!");
                     }
-                    else
-                    {
-                        Console.WriteLine("Person not found\n Press enter to return");
-                        Console.ReadKey();
-                    }
+                    Console.WriteLine("Wrong input!");
                 }
                 catch
                 {
                     Console.WriteLine("Wrong input!");
                 }
             }
+            else
+            {
+                Console.WriteLine("Person not found in DB");
+            }
         }
-
 
         /// <summary>
         /// Hämtar föräldrar
@@ -270,6 +265,7 @@ namespace Inlämning_Crud
         {
             while (true)
             {
+                Console.Clear();
                 var db = new SQLDatabase();
                 Console.WriteLine("What do you wanna search for? ");
                 Console.WriteLine("1. People starting with a certain letter");
@@ -313,80 +309,104 @@ namespace Inlämning_Crud
         /// </summary>
         private void ShowSiblings()
         {
+            Console.Clear();
             var db = new SQLDatabase();
             Console.WriteLine("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
-            var ctr = 1;
-            foreach (var person in persons)
+            if (persons.Count > 0)
             {
-                var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
-                Console.WriteLine(info);
-            }
-            Console.WriteLine("0. None of the above");
-            var option = ChoosePerson(persons.Count);
-            if (option > 0)
-            {
-                try
+                var ctr = 1;
+                foreach (var person in persons)
                 {
-                    var siblings = db.GetSiblings(persons[option - 1]);
-                    if (siblings.Count > 0)
+                    var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
+                    Console.WriteLine(info);
+                }
+                Console.WriteLine("0. None of the above");
+                var option = ChoosePerson(persons.Count);
+                if (option > 0)
+                {
+                    try
                     {
-                        Console.WriteLine("Siblings: ");
-                        PrintList(siblings);
+                        var siblings = db.GetSiblings(persons[option - 1]);
+                        if (siblings.Count > 0)
+                        {
+                            Console.WriteLine($"{persons[option - 1].FirstName}\nSiblings: ");
+                            PrintList(siblings);
+                            Console.Write("Press any key to return: ");
+                            Console.ReadKey();
+                        }
+                        else
+                        {
+                            Console.WriteLine("No Siblings found\n Press enter to return");
+                            Console.ReadKey();
+                        }
                     }
-                    else
+                    catch
                     {
-                        Console.WriteLine("No Siblings found\n Press enter to return");
-                        Console.ReadKey();
+                        Console.WriteLine("Wrong input!");
                     }
                 }
-                catch
-                {
-                    Console.WriteLine("Wrong input!");
-                }
             }
+            else
+            {
+                Console.WriteLine("Person not found in DB");
+            }
+            Console.WriteLine("[Press any key to go back]");
+            Console.Clear();
         }
 
         /// <summary>
         /// Visar föräldrar
-        /// </summary>        
+        /// </summary>
         private void Parents()
         {
             var db = new SQLDatabase();
-            Console.Write("Enter name: ");
+            Console.WriteLine("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
-            PrintList(persons);
-            Console.Write("Enter person: ");
-            var userId = Convert.ToInt32(Console.ReadLine());
-
-            var databas = new SQLDatabase();
-            var dt = databas.Read(userId);
-            DataRow rad = dt;
-            var fname = rad["FirstName"].ToString();
-            var lname = rad["LastName"].ToString();
-            var mother = (int)rad["motherId"];
-            var father = (int)rad["FatherId"];
-            Console.WriteLine($"{fname} {lname}");
-            if (mother > 0)
+            if (persons.Count > 0)
             {
-                dt = databas.Read(mother);
-                rad = dt;
-                fname = rad["FirstName"].ToString();
-                lname = rad["LastName"].ToString();
-                Console.WriteLine($"Mother: {fname} {lname}");
+                var ctr = 1;
+                foreach (var person in persons)
+                {
+                    var info = $"{ctr++}. {person.FirstName} {person.LastName} Born: {person.Born}";
+                    Console.WriteLine(info);
+                }
+                Console.WriteLine("0. None of the above");
+                var option = ChoosePerson(persons.Count);
+                try
+                {
+                    var person = (persons[option - 1]);
+                    var mother = db.GetPersons(person.Mother);
+                    PrintPerson(person);
+                    if (mother == null)
+                    {
+                        Console.WriteLine("No mother");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Mother:");
+                        PrintPerson(mother);
+                    }
+                    var father = db.GetPersons(person.Father);
+                    if (father == null)
+                    {
+                        Console.WriteLine("No Father: ");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Father: ");
+                        PrintPerson(father);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Somthing went wrong, try again");
+                }
             }
-            if (father > 0)
-            {
-                dt = databas.Read(father);
-                rad = dt;
-                fname = rad["FirstName"].ToString();
-                lname = rad["LastName"].ToString();
-                System.Console.WriteLine($"Father: {fname} {lname}");
-            }
-
-            Console.ReadLine();
+            Console.WriteLine("Press any key to return: ");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -396,6 +416,7 @@ namespace Inlämning_Crud
         {
             while (true)
             {
+                Console.Clear();
                 var db = new SQLDatabase();
                 Console.WriteLine("Missing Infos Menu");
                 Console.WriteLine("1. Show persons missing date of birth");
@@ -427,7 +448,10 @@ namespace Inlämning_Crud
                         Menu();
                         break;
                 }
+                Console.Clear();
                 PrintAllPerson(db.ShowAllFrom(sql));
+                Console.WriteLine("Press any key to return: ");
+                Console.ReadKey();
             }
         }
 
@@ -436,6 +460,7 @@ namespace Inlämning_Crud
         /// </summary>
         private void ShowWhenPeopleBorn()
         {
+            Console.Clear();
             try
             {
                 var db = new SQLDatabase();
@@ -449,6 +474,8 @@ namespace Inlämning_Crud
             {
                 Console.WriteLine("Invalid Input, try again! ");
             }
+            Console.WriteLine("Press any key to go back!");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -456,6 +483,7 @@ namespace Inlämning_Crud
         /// </summary>
         private void ShowPeopleByLetter()
         {
+            Console.Clear();
             try
             {
                 var db = new SQLDatabase();
@@ -468,7 +496,7 @@ namespace Inlämning_Crud
             {
                 Console.WriteLine("Invalid input, try again");
             }
-
+            Console.WriteLine("Press any key to go back!");
             Console.ReadLine();
         }
 
@@ -509,6 +537,8 @@ namespace Inlämning_Crud
                 person = db.CreatePerson(person);
                 Console.WriteLine($"{person.FirstName} was added");
             }
+            Console.WriteLine("Press any key to go back!");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -517,20 +547,13 @@ namespace Inlämning_Crud
         /// <param name="dt"></param>
         private static void PrintAllPerson(DataTable dt)
         {
+            var ctr = 1;
             foreach (DataRow item in dt.Rows)
             {
-                Console.WriteLine($"Name {item["firstName"]} {item["lastName"]}, " +
-                    $"Born: {item["Born"]}");
+                Console.WriteLine($"{ctr++}\nName: {item["firstName"]} {item["lastName"]}\n " +
+                    $"Born: {item["Born"]}\nDied: {item["died"]}\nMother id: {item["motherId"]}\n" +
+                    $"FatherId: {item["fatherId"]}\n");
             }
-            //for (int j = 0; j < dt.Rows.Count; j++)
-            //{
-            //    for (int i = 0; i < dt.Columns.Count; i++)
-            //    {
-            //        Console.Write(dt.Columns[i].ColumnName + ":  ");
-            //        Console.Write(dt.Rows[j].ItemArray[i]);
-            //    }
-            //    Console.WriteLine();
-            //}
         }
 
         /// <summary>
@@ -539,10 +562,10 @@ namespace Inlämning_Crud
         /// <param name="person">skicka med ett namn</param>
         private static void PrintPerson(Person person)
         {
-            Console.WriteLine($"Id: {person.Id} Name : {person.FirstName} {person.LastName} " +
-                      $"Born: {person.Born}  Died: {person.Died}  " +
-                      $"MotherId: {person.Mother}" +
-                      $"FatherId :{person.Father}");
+            Console.WriteLine($"Id: {person.Id}\nName : {person.FirstName} {person.LastName}\n" +
+                      $"Born: {person.Born}\nDied: {person.Died}\n" +
+                      $"MotherId: {person.Mother}\n" +
+                      $"FatherId :{person.Father}\n");
         }
 
         /// <summary>
@@ -554,9 +577,7 @@ namespace Inlämning_Crud
             foreach (var person in people)
             {
                 Console.WriteLine($"Name : {person.FirstName} {person.LastName}, " +
-                    $"Born: {person.Born}, " +
-                    $"MotherId: {person.Mother}, " +
-                    $"FatherId: {person.Father} ");
+                    $"Born: {person.Born} ");
             }
         }
 
@@ -569,11 +590,12 @@ namespace Inlämning_Crud
         {
             while (true)
             {
-                Console.Write("Which person do you want to choose? ");
+                Console.Write("Which person do you want to choose?");
                 if (int.TryParse(Console.ReadLine(), out int choice))
                 {
-                    if (choice > 0 && choice >= count)
+                    if (choice > 0 && choice <= count)
                     {
+                        Console.Clear();
                         return choice;
                     }
                     else if (choice == 0)

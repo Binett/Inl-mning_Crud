@@ -123,35 +123,6 @@ namespace Inlämning_Crud
             return person;
         }
 
-        internal Person GetPersons(int id)
-        {
-            string sql = "SELECT TOP 1 * from Family Where id = @id";
-            var parameter = new (string, string)[]
-            {
-                ("@id",id.ToString()),
-            };
-
-            var dt = GetDataTable(sql, parameter);
-
-            if (dt.Rows.Count == 0)
-            {
-                return default;
-            }
-
-            var row = dt.Rows[0];
-
-            return new Person
-            {
-                Id = (int)row["Id"],
-                FirstName = row["firstName"].ToString(),
-                LastName = row["lastName"].ToString(),
-                Born = (int)row["born"],
-                Died = (int)row["died"],
-                Mother = (int)row["motherId"],
-                Father = (int)row["fatherId"]
-            };
-        }
-
         /// <summary>
         /// Hämtar en lista med personer
         /// </summary>
@@ -244,19 +215,33 @@ namespace Inlämning_Crud
             ExecuteSQL(sql, parameter);
         }
 
-        /// <summary>
-        /// Hämtar person
-        /// </summary>
-        /// <param name="id">person id</param>
-        /// <returns>En datarad baseras på id:t vi skickar in</returns>
-        internal DataRow Read(int id)
+        internal Person GetPersons(int id)
         {
-            var dt = GetDataTable($"SELECT TOP 1 * FROM Family WHERE Id={id};");
+            string sql = "SELECT TOP 1 * from Family Where id = @id";
+            var parameter = new (string, string)[]
+            {
+                ("@id",id.ToString()),
+            };
+
+            var dt = GetDataTable(sql, parameter);
+
             if (dt.Rows.Count == 0)
             {
-                return null;
+                return default;
             }
-            return dt.Rows[0];
+
+            var row = dt.Rows[0];
+
+            return new Person
+            {
+                Id = (int)row["Id"],
+                FirstName = row["firstName"].ToString(),
+                LastName = row["lastName"].ToString(),
+                Born = (int)row["born"],
+                Died = (int)row["died"],
+                Mother = (int)row["motherId"],
+                Father = (int)row["fatherId"]
+            };
         }
 
         /// <summary>
@@ -266,10 +251,9 @@ namespace Inlämning_Crud
         internal void Delete(int id)
         {
             ExecuteSQL("DELETE FROM Family Where id = @id", ("@id", id.ToString()));
-
         }
 
-        public List<Person> GetSiblings(Person person)
+        internal List<Person> GetSiblings(Person person)
         {
             var siblings = new List<Person>();
             var dt = new DataTable();
