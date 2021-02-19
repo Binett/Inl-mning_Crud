@@ -8,7 +8,7 @@ using System.Linq;
 namespace Inlämning_Crud
 {
     internal class SQLDatabase
-    {
+    {        
         public string ConnectionString { get; set; } = @"Data Source = .\SQLExpress; Integrated Security = true; database = {0}";
         public string DatabaseName { get; set; } = "Binett";
 

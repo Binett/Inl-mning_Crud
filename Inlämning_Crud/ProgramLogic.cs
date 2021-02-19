@@ -22,6 +22,7 @@ namespace Inlämning_Crud
             while (true)
             {
                 Console.Clear();
+                Utilitys.LogoMenu();
                 Console.WriteLine("1. Add Person");
                 Console.WriteLine("2. Show people");
                 Console.WriteLine("3. Update person");
@@ -35,7 +36,7 @@ namespace Inlämning_Crud
                         break;
 
                     case "2":
-                        ListPeople();
+                        Search();
                         break;
 
                     case "3":
@@ -59,9 +60,10 @@ namespace Inlämning_Crud
         private void DeletePerson()
         {
             Console.Clear();
+            Utilitys.LogoDelete();
             var list = new List<Person>();
             var db = new SQLDatabase();
-            Console.Write("Enter name on person you wanna display: ");
+            Utilitys.PrintGreen("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
             if (persons.Count > 0)
@@ -99,17 +101,17 @@ namespace Inlämning_Crud
                             db.Delete(member.Id);
                         }
                     }
-                    Console.WriteLine($"{member.FirstName} Was succesfully deleted!");
+                    Utilitys.PrintGreen($"{member.FirstName} Was succesfully deleted!");
 
                 }
                 catch
                 {
-                    Console.WriteLine("Wrong input!");
+                    Utilitys.PrintRed("Wrong input!");
                 }
             }
             else
             {
-                Console.WriteLine($"{name} was not found in the DB");
+                Utilitys.PrintRed($"{name} was not found in the DB");
             }
             Console.WriteLine("[Press any key to go back]");
             Console.ReadKey();
@@ -121,6 +123,7 @@ namespace Inlämning_Crud
         private void UpdatePerson()
         {
             Console.Clear();
+            Utilitys.LogoUpdate();
             var db = new SQLDatabase();
             Console.Write("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
@@ -141,7 +144,8 @@ namespace Inlämning_Crud
                     bool isRunning = true;
                     while (isRunning)
                     {
-                        
+                        Console.Clear();
+                        Utilitys.LogoUpdate();
                         PrintPerson(person);
                         Console.WriteLine("What do you wanna change?");
                         Console.WriteLine("1. First name: ");
@@ -261,11 +265,12 @@ namespace Inlämning_Crud
         /// <summary>
         /// Listar personer från databasen beroende på vad vi vill visa
         /// </summary>
-        private void ListPeople()
+        private void Search()
         {
             while (true)
             {
                 Console.Clear();
+                Utilitys.LogoSearch();
                 var db = new SQLDatabase();
                 Console.WriteLine("What do you wanna search for? ");
                 Console.WriteLine("1. People starting with a certain letter");
@@ -310,6 +315,7 @@ namespace Inlämning_Crud
         private void ShowSiblings()
         {
             Console.Clear();
+            Utilitys.LogoSearch();
             var db = new SQLDatabase();
             Console.WriteLine("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
@@ -361,6 +367,8 @@ namespace Inlämning_Crud
         /// </summary>
         private void Parents()
         {
+            Console.Clear();
+            Utilitys.LogoSearch();
             var db = new SQLDatabase();
             Console.WriteLine("Enter name on person you wanna display: ");
             var name = Console.ReadLine();
@@ -417,6 +425,7 @@ namespace Inlämning_Crud
             while (true)
             {
                 Console.Clear();
+                Utilitys.LogoSearch();
                 var db = new SQLDatabase();
                 Console.WriteLine("Missing Infos Menu");
                 Console.WriteLine("1. Show persons missing date of birth");
@@ -461,6 +470,7 @@ namespace Inlämning_Crud
         private void ShowWhenPeopleBorn()
         {
             Console.Clear();
+            Utilitys.LogoSearch();
             try
             {
                 var db = new SQLDatabase();
@@ -484,6 +494,7 @@ namespace Inlämning_Crud
         private void ShowPeopleByLetter()
         {
             Console.Clear();
+            Utilitys.LogoSearch();
             try
             {
                 var db = new SQLDatabase();
@@ -506,6 +517,7 @@ namespace Inlämning_Crud
         private void AddPerson()
         {
             Console.Clear();
+            Utilitys.LogoAddPerson();
             var db = new SQLDatabase();
             var person = new Person();
 
@@ -525,7 +537,7 @@ namespace Inlämning_Crud
 
             if (person.FirstName?.Length == 0 || person.LastName?.Length == 0)
             {
-                Console.WriteLine("Worng input, try again? (y/n)");
+                Utilitys.PrintRed("Worng input, try again? (y/n)");
                 var choice = Console.ReadLine();
                 if (string.Equals(choice, "y", StringComparison.OrdinalIgnoreCase))
                 {
