@@ -63,7 +63,7 @@ namespace Inlämning_Crud
             Utilitys.LogoDelete();
             var list = new List<Person>();
             var db = new SQLDatabase();
-            Utilitys.PrintGreen("Enter name on person you wanna display: ");
+            Utilitys.PrintGreen("Enter name on person you wanna delete: ");
             var name = Console.ReadLine();
             var persons = db.GetPersons(name);
             if (persons.Count > 0)
@@ -108,7 +108,7 @@ namespace Inlämning_Crud
                 {
                     Utilitys.PrintRed("Wrong input!");
                 }
-            }
+            }            
             else
             {
                 Utilitys.PrintRed($"{name} was not found in the DB");
@@ -278,7 +278,8 @@ namespace Inlämning_Crud
                 Console.WriteLine("3. People misssing data");
                 Console.WriteLine("4. Show parents to a certain person");
                 Console.WriteLine("5. Show siblings to a certain person");
-                Console.WriteLine("6. Exit to main menu");
+                Console.WriteLine("6. Show all in DB");
+                Console.WriteLine("7. Exit to main menu");
                 var input = Console.ReadLine();
                 switch (input)
                 {
@@ -303,10 +304,30 @@ namespace Inlämning_Crud
                         break;
 
                     case "6":
+                        ShowAllFromDatabase();
+                        break;
+
+                    case "7":
                         Menu();
                         break;
                 }
             }
+        }
+
+        private void ShowAllFromDatabase()
+        {
+            Console.Clear();
+            Utilitys.LogoSearch();
+            var db = new SQLDatabase();
+            var dt = db.ShowAllFrom();
+            foreach (DataRow row in dt.Rows)
+            {
+                Console.WriteLine($"ID: {row["Id"]} Name: {row["firstName"]} {row["lastName"]} " +
+                    $"Born: {row["born"]} Mother Id: {row["motherId"]} Father Id: {row["fatherId"]}");
+            }
+            Console.WriteLine("[Press any key to go back]");
+            Console.ReadLine();
+
         }
 
         /// <summary>
@@ -500,8 +521,15 @@ namespace Inlämning_Crud
                 var db = new SQLDatabase();
                 Console.Write("Enter a letter: ");
                 var letter = Console.ReadLine();
-                var sql = "Where firstName LIKE @letter +'%'";
-                PrintAllPerson(db.ShowAllFrom(sql, ("@letter", letter)));
+                if (letter =="")
+                {
+                    Utilitys.PrintRed("Next time enter a letter");
+                }
+                else
+                {
+                    var sql = "Where firstName LIKE @letter +'%'";
+                    PrintAllPerson(db.ShowAllFrom(sql, ("@letter", letter)));      
+                }
             }
             catch
             {
@@ -547,7 +575,7 @@ namespace Inlämning_Crud
             else
             {
                 person = db.CreatePerson(person);
-                Console.WriteLine($"{person.FirstName} was added");
+                Utilitys.PrintGreen($"{person.FirstName} was added");
             }
             Console.WriteLine("Press any key to go back!");
             Console.ReadKey();
